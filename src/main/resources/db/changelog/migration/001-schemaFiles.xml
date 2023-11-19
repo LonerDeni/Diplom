@@ -1,0 +1,28 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation=" http://www.liquibase.org/xml/ns/dbchangelog">
+    <changeSet  author="testdd"  id="1">
+        <createTable schemaName="netology" tableName="Filess">
+            <column  name="id"  type="LONG" autoIncrement="true">
+                <constraints  nullable="false"  primaryKey="true"  unique="true"/>
+            </column>
+            <column  name="userId"  type="LONG">
+                <constraints  nullable="false"
+                              foreignKeyName="fk_filess_userss"
+                              references="netology.Userss(id)"/>
+            </column>
+            <column  name="file_name"  type="VARCHAR(255)">
+                <constraints  nullable="false"/>
+            </column>
+            <column  name="file_path"   type="VARCHAR(255)">
+                <constraints  nullable="false"/>
+            </column>
+            <column  name="size_file"  type="LONG">
+                <constraints  nullable="false"/>
+            </column>
+            <column  name="modify_date"  type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      file: migration/001-schemaUsers.xml
+      relativeToChangelogFile: true
+  - include:
+      file: migration/001-dataUsers.xml
+      relativeToChangelogFile: true
+  - include:
+      file: migration/001-schemaFiles.xml
+      relativeToChangelogFile: true

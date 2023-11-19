@@ -1,0 +1,29 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation=" http://www.liquibase.org/xml/ns/dbchangelog">
+    <changeSet  author="testdd"  id="1">
+        <createTable schemaName="netology" tableName="Userss">
+            <column  name="id"  type="LONG" autoIncrement="true">
+                <constraints  nullable="false"  primaryKey="true"  unique="true"/>
+            </column>
+            <column  name="login"  type="VARCHAR(255)">
+                <constraints  nullable="false"/>
+            </column>
+            <column  name="password"  type="VARCHAR(255)">
+                <constraints  nullable="false"/>
+            </column>
+            <column  name="name"   type="VARCHAR(255)">
+                <constraints  nullable="false"/>
+            </column>
+            <column  name="surname"  type="VARCHAR(255)">
+                <constraints  nullable="false"/>
+            </column>
+            <column  name="email"  type="VARCHAR(255)">
+                <constraints  nullable="false"/>
+            </column>
+            <column  name="modify_date"  type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

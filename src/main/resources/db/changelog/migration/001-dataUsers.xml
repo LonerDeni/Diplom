@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation=" http://www.liquibase.org/xml/ns/dbchangelog">
+    <changeSet author="testdd" id="1">
+        <insert schemaName="netology" tableName="Userss">
+            <column name="login" value="test1"/>
+            <column name="password" value="5dfc91e02ecc53592738b6c36eedb875"/>
+            <column name="name" value="Ivan"/>
+            <column name="surname" value="Petrov"/>
+            <column name="email" value="test1@test.com"/>
+        </insert>
+        <insert schemaName="netology" tableName="Userss">
+            <column name="login" value="test2"/>
+            <column name="password" value="61531c49ba76ca918d1c4ade7400fb8d"/>
+            <column name="name" value="Semen"/>
+            <column name="surname" value="Viktorov"/>
+            <column name="email" value="test2@test.com"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

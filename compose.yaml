@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  cloudservice:
+    container_name: diplomService
+    build:
+      context: .
+    ports:
+      - "5500:5500"
+    depends_on:
+      - database
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: qwerty123
+
+  database:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
