@@ -19,7 +19,14 @@ public class ExceptionHandlerFile {
     @ResponseBody
     @ExceptionHandler(AuthTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseError handlerException(AuthTokenException e) {
+    public ResponseError credentialsHandler(AuthTokenException e) {
+        return new ResponseError(null,e.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(CreateUserException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseError credentialsHandler(CreateUserException e) {
         return new ResponseError(null,e.getMessage());
     }
 }

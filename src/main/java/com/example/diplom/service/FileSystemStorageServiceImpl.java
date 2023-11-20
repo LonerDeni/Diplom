@@ -37,6 +37,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
     private final UserRepositories userRepositories;
     private final JWTUtil jwtUtil;
     private final Path rootLocation = Paths.get("/Users/deniskachalov/IdeaProjects/Netology/Diplom/src/main/resources/files/");
+
     @Override
     public ResponseEntity<String> uploadFile(MultipartFile file, String token) {
         // TODO Этот код как то мб сделать лучше
@@ -58,7 +59,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
             throw new FileException("File already exists");
         }
         try {
-            fileRepositories.save(new FileEntity(file.getOriginalFilename(),idUser, fileDirectory.toString(), file.getSize()));
+            fileRepositories.save(new FileEntity(file.getOriginalFilename(), idUser, fileDirectory.toString(), file.getSize()));
             Files.copy(file.getInputStream(), fileDirectory.resolve(file.getOriginalFilename()));
             log.info("Successful upload file: " + file.getOriginalFilename());
             return new ResponseEntity<>("Success upload", HttpStatus.OK);
@@ -78,7 +79,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
         }
         Long userId = userEntity.get().getId();
         // TODO
-        FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId,fileName);
+        FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         boolean isFileDelete;
         if (isNull(tableNameFiles)) {
             log.error("Error delete file: " + fileName + " file not found");
@@ -111,7 +112,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
         }
         Long userId = userEntity.get().getId();
         // TODO
-        FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId,fileName);
+        FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         if (isNull(tableNameFiles)) {
             log.error("Error download file: " + fileName + " file not found");
             throw new FileException(String.format("File with name: %s not found", fileName));
@@ -141,7 +142,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
         }
         Long userId = userEntity.get().getId();
         // TODO
-        FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId,fileName);
+        FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         if (isNull(tableNameFiles)) {
             log.error("Error renamed file: " + fileName + " file not found");
             throw new FileException(String.format("File with name: %s not found", fileName));
@@ -176,13 +177,13 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
         // TODO
         List<FileEntity> fileListUser = fileRepositories.findByUserId(userId);
         log.info("List files search");
-        return new ResponseEntity<>(fileListUser.stream().map(x -> new FileResponse(x.getFileName(), x.getSize())).limit(limit).collect(Collectors.toList()),HttpStatus.OK);
+        return new ResponseEntity<>(fileListUser.stream().map(x -> new FileResponse(x.getFileName(), x.getSize())).limit(limit).collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @Override
     public Path init(Long idUser) {
         Path pathLocation = Paths.get(rootLocation + "/" + idUser);
-        if(!Files.exists(pathLocation)) {
+        if (!Files.exists(pathLocation)) {
             try {
                 Files.createDirectories(pathLocation);
                 log.info("Directories for user create");

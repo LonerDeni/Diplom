@@ -1,11 +1,14 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog
-        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation=" http://www.liquibase.org/xml/ns/dbchangelog">
-    <changeSet  author="testdd"  id="1">
-        <createTable schemaName="netology" tableName="Userss">
-            <column  name="id"  type="LONG" autoIncrement="true">
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.3.xsd">
+    <changeSet  author="testdd"  id="3">
+        <createTable schemaName="netology" tableName="users">
+            <column  name="id"  type="BIGINT" autoIncrement="true">
                 <constraints  nullable="false"  primaryKey="true"  unique="true"/>
             </column>
             <column  name="login"  type="VARCHAR(255)">

@@ -6,7 +6,7 @@ services:
     build:
       context: .
     ports:
-      - "5500:5500"
+      - "8081:8081"
     depends_on:
       - database
     environment:
@@ -19,7 +19,7 @@ services:
     restart: always
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerty123
     ports:
       - "5432:5432"

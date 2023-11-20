@@ -2,44 +2,43 @@ package com.example.diplom.service;
 
 import com.example.diplom.entity.AuthRequest;
 import com.example.diplom.exception.AuthTokenException;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
-import io.jsonwebtoken.MalformedJwtException;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component //Скорее всего это сервис
+@Component
 public class JWTUtil {
 
     @Value("${jwt.secret.access}")
     private String jwtSecret;
+    private List<String> blackList = new ArrayList<>();
 
     public String generateJwtToken(AuthRequest authRequest) {
-//        return Jwts.builder()
-//                .setSubject(authRequest.getLogin())
-//                .setExpiration(accessExpiration)
-//                .signWith(jwtAccessSecret)
-//                .claim("test")
-//                .compact();
-            final LocalDateTime now = LocalDateTime.now();
-            final Instant accessExpirationInstant = now.plusMinutes(60).atZone(ZoneId.systemDefault()).toInstant();
-            final Date accessExpiration = Date.from(accessExpirationInstant);
-            String tokenUser = Jwts.builder().setSubject((authRequest.getLogin())).setIssuedAt(new Date())
-                    .setExpiration(accessExpiration)
-                    .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
+        final LocalDateTime now = LocalDateTime.now();
+        final Instant accessExpirationInstant = now.plusMinutes(60).atZone(ZoneId.systemDefault()).toInstant();
+        final Date accessExpiration = Date.from(accessExpirationInstant);
+        String tokenUser = Jwts.builder().setSubject((authRequest.getLogin())).setIssuedAt(new Date())
+                .setExpiration(accessExpiration)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
         log.info("Create token");
-            return tokenUser;
+        return tokenUser;
     }
 
     public boolean validateJwtToken(String jwt) {
+        if (checkBlackListToken(jwt)) {
+            log.error("User logout token");
+            throw new AuthTokenException("Invalid Jwt token");
+        }
         try {
             log.info("Validation token");
             Jwts.parser()
@@ -48,7 +47,7 @@ public class JWTUtil {
             log.info("Token valid");
             return true;
         } catch (MalformedJwtException e) {
-            log.error("Invalid Jwt token",e);
+            log.error("Invalid Jwt token", e);
             throw new AuthTokenException("Invalid Jwt token");
         } catch (ExpiredJwtException e) {
             log.error("Token expired", e);
@@ -62,5 +61,20 @@ public class JWTUtil {
     public String getUserNameFromJwtToken(String jwt) {
         log.info("Get login from token");
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwt).getBody().getSubject();
+    }
+
+    public boolean checkBlackListToken(String jwt) {
+        if (blackList.contains(jwt)) {
+            return true;
+        }
+        return false;
+    }
+
+    public void addBlackListToken(String jwt) {
+        if (blackList.contains(jwt)) {
+            log.info("Token already exists in blackList");
+        }
+        blackList.add(jwt);
+        log.info("Token add in blackList");
     }
 }

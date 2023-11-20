@@ -10,10 +10,11 @@ public class LoginRepository {
 
     private final UserRepositories userRepositories;
 
-    public LoginRepository (UserRepositories userRepositories) {
+    public LoginRepository(UserRepositories userRepositories) {
         this.userRepositories = userRepositories;
     }
-    public Optional<UserEntity> checkUser(String login){
+
+    public Optional<UserEntity> checkUser(String login) {
         return userRepositories.findByLogin(login);
     }
 
