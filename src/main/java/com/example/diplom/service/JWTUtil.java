@@ -4,28 +4,29 @@ import com.example.diplom.entity.AuthRequest;
 import com.example.diplom.exception.AuthTokenException;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class JWTUtil {
+    @Autowired
+    CacheManager cacheManager;
 
     @Value("${jwt.secret.access}")
     private String jwtSecret;
-    private List<String> blackList = new ArrayList<>();
 
     public String generateJwtToken(AuthRequest authRequest) {
         final LocalDateTime now = LocalDateTime.now();
-        final Instant accessExpirationInstant = now.plusMinutes(60).atZone(ZoneId.systemDefault()).toInstant();
+        final Instant accessExpirationInstant = now.plusHours(1).atZone(ZoneId.systemDefault()).toInstant();
         final Date accessExpiration = Date.from(accessExpirationInstant);
         String tokenUser = Jwts.builder().setSubject((authRequest.getLogin())).setIssuedAt(new Date())
                 .setExpiration(accessExpiration)
@@ -35,9 +36,9 @@ public class JWTUtil {
     }
 
     public boolean validateJwtToken(String jwt) {
-        if (checkBlackListToken(jwt)) {
+        if (checkCacheToken(jwt)) {
             log.error("User logout token");
-            throw new AuthTokenException("Invalid Jwt token");
+            throw new AuthTokenException("Invalid Jwt token. User logout");
         }
         try {
             log.info("Validation token");
@@ -62,19 +63,10 @@ public class JWTUtil {
         log.info("Get login from token");
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwt).getBody().getSubject();
     }
-
-    public boolean checkBlackListToken(String jwt) {
-        if (blackList.contains(jwt)) {
+    public boolean checkCacheToken(String jwt){
+        if(cacheManager.getCache("jwtCache").get(jwt) != null) {
             return true;
         }
         return false;
-    }
-
-    public void addBlackListToken(String jwt) {
-        if (blackList.contains(jwt)) {
-            log.info("Token already exists in blackList");
-        }
-        blackList.add(jwt);
-        log.info("Token add in blackList");
     }
 }

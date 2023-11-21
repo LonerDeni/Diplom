@@ -6,11 +6,11 @@ import com.example.diplom.entity.UserEntity;
 import com.example.diplom.exception.AuthTokenException;
 import com.example.diplom.exception.CreateUserException;
 import com.example.diplom.model.UserCreateResponse;
-import com.example.diplom.repository.LoginRepository;
 import com.example.diplom.repository.UserRepositories;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -45,9 +45,9 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
+    @Cacheable(cacheNames = "jwtCache")
     public String logOutUser(String token) {
         jwtUtil.validateJwtToken(token);
-        jwtUtil.addBlackListToken(token);
         log.info("Logout user successful");
         return "Success logout";
     }
