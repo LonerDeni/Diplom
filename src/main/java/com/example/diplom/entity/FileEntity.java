@@ -14,7 +14,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(schema = "netology", name = "filetest")
+@Table(schema = "netology", name = "files")
 public class FileEntity {
 
     @Id
