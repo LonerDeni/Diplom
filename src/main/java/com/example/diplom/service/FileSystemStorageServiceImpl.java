@@ -9,6 +9,7 @@ import com.example.diplom.repository.FileRepositories;
 import com.example.diplom.repository.UserRepositories;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,19 +37,11 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
     private final FileRepositories fileRepositories;
     private final UserRepositories userRepositories;
     private final JWTUtil jwtUtil;
-    private final Path rootLocation = Paths.get("/Users/deniskachalov/IdeaProjects/Netology/Diplom/src/main/resources/files/");
 
     @Override
     public ResponseEntity<String> uploadFile(MultipartFile file, String token) {
-        // TODO Этот код как то мб сделать лучше
-        Optional<UserEntity> userEntity = userRepositories.
-                findByLogin(jwtUtil.getUserNameFromJwtToken(token));
-        if (!userEntity.isPresent()) {
-            throw new FileException("User not found");
-        }
-        Long idUser = userEntity.get().getId();
+        Long idUser = getUserId(token);
         Path fileDirectory = init(idUser);
-        // TODO
         FileEntity tableNameFiles = fileRepositories.findByFileName(file.getOriginalFilename());
         if (file.isEmpty()) {
             log.error("Error upload file: " + file.getOriginalFilename() + " file not found");
@@ -71,14 +64,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public ResponseEntity<String> deleteFile(String fileName, String token) {
-        // TODO Этот код как то мб сделать лучше
-        Optional<UserEntity> userEntity = userRepositories.
-                findByLogin(jwtUtil.getUserNameFromJwtToken(token));
-        if (!userEntity.isPresent()) {
-            throw new FileException("User not found");
-        }
-        Long userId = userEntity.get().getId();
-        // TODO
+        Long userId = getUserId(token);
         FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         boolean isFileDelete;
         if (isNull(tableNameFiles)) {
@@ -104,14 +90,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public ResponseEntity<Object> downloadFile(String fileName, String token) {
-        // TODO Этот код как то мб сделать лучше
-        Optional<UserEntity> userEntity = userRepositories.
-                findByLogin(jwtUtil.getUserNameFromJwtToken(token));
-        if (!userEntity.isPresent()) {
-            throw new FileException("User not found");
-        }
-        Long userId = userEntity.get().getId();
-        // TODO
+        Long userId = getUserId(token);
         FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         if (isNull(tableNameFiles)) {
             log.error("Error download file: " + fileName + " file not found");
@@ -134,14 +113,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public ResponseEntity<String> editFileName(String fileName, NewFileName newFileName, String token) {
-        // TODO Этот код как то мб сделать лучше
-        Optional<UserEntity> userEntity = userRepositories.
-                findByLogin(jwtUtil.getUserNameFromJwtToken(token));
-        if (!userEntity.isPresent()) {
-            throw new FileException("User not found");
-        }
-        Long userId = userEntity.get().getId();
-        // TODO
+        Long userId = getUserId(token);
         FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         if (isNull(tableNameFiles)) {
             log.error("Error renamed file: " + fileName + " file not found");
@@ -167,14 +139,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public ResponseEntity<List<FileResponse>> getAllFiles(Integer limit, String token) {
-        // TODO Этот код как то мб сделать лучше
-        Optional<UserEntity> userEntity = userRepositories.
-                findByLogin(jwtUtil.getUserNameFromJwtToken(token));
-        if (!userEntity.isPresent()) {
-            throw new FileException("User not found");
-        }
-        Long userId = userEntity.get().getId();
-        // TODO
+        Long userId = getUserId(token);
         List<FileEntity> fileListUser = fileRepositories.findByUserId(userId);
         log.info("List files search");
         return new ResponseEntity<>(fileListUser.stream().map(x -> new FileResponse(x.getFileName(), x.getSize())).limit(limit).collect(Collectors.toList()), HttpStatus.OK);
@@ -182,6 +147,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public Path init(Long idUser) {
+        String rootLocation = "src/main/resources/files/";
         Path pathLocation = Paths.get(rootLocation + "/" + idUser);
         if (!Files.exists(pathLocation)) {
             try {
@@ -192,6 +158,15 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
             }
         }
         return pathLocation;
+    }
+
+    private Long getUserId(String token){
+        Optional<UserEntity> userEntity = userRepositories.
+                findByLogin(jwtUtil.getUserNameFromJwtToken(token));
+        if (!userEntity.isPresent()) {
+            throw new FileException("User not found");
+        }
+        return userEntity.get().getId();
     }
 
 }
