@@ -147,7 +147,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public Path init(Long idUser) {
-        String rootLocation = "src/main/resources/files/";
+        String rootLocation = "src/main/resources/files";
         Path pathLocation = Paths.get(rootLocation + "/" + idUser);
         if (!Files.exists(pathLocation)) {
             try {

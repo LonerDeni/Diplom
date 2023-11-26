@@ -53,7 +53,11 @@ public class JWTUtil {
         } catch (ExpiredJwtException e) {
             log.error("Token expired", e);
             throw new AuthTokenException("Token expired");
-        } catch (Exception e) {
+        } catch (SignatureException e) {
+            log.error("Error with authorized signature does not match", e);
+            throw new AuthTokenException("Error with authorized");
+        } catch (
+                Exception e) {
             log.error("Failed authorized", e);
         }
         return false;

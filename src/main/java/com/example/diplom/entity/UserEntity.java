@@ -1,9 +1,6 @@
 package com.example.diplom.entity;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -16,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(schema = "netology",name = "users")
 public class UserEntity {
     @Id
@@ -40,4 +38,12 @@ public class UserEntity {
     @OneToMany()
     @JoinColumn(name = "userid")
     private List<FileEntity> files;
+
+    public UserEntity(String login, String password, String name, String lastName, String email) {
+        this.login = login;
+        this.password = password;
+        this.name = name;
+        this.lastName = lastName;
+        this.email = email;
+    }
 }
