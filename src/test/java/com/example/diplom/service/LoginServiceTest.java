@@ -42,7 +42,7 @@ public class LoginServiceTest {
 
     @Test
     public void authSuccessTest() throws Exception{
-        mockMvc.perform(multipart("/cloud/login")
+        mockMvc.perform(multipart("/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"login\": \"testUnitData\", \"password\": \"test123\"}"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
@@ -50,7 +50,7 @@ public class LoginServiceTest {
 
     @Test
     public void authNotValidLoginTest() throws Exception{
-        mockMvc.perform(multipart("/cloud/login")
+        mockMvc.perform(multipart("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"login\": \"qwery\", \"password\": \"test123\"}"))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())

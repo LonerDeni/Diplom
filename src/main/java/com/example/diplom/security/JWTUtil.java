@@ -1,8 +1,10 @@
-package com.example.diplom.service;
+package com.example.diplom.security;
 
 import com.example.diplom.entity.AuthRequest;
 import com.example.diplom.exception.AuthTokenException;
 import io.jsonwebtoken.*;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,9 +19,10 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JWTUtil {
-    @Autowired
-    CacheManager cacheManager;
+
+    private final CacheManager cacheManager;
 
     @Value("${jwt.secret.access}")
     private String jwtSecret;

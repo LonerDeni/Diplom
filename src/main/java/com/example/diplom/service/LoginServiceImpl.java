@@ -7,6 +7,7 @@ import com.example.diplom.exception.AuthTokenException;
 import com.example.diplom.exception.CreateUserException;
 import com.example.diplom.model.UserCreateResponse;
 import com.example.diplom.repository.UserRepositories;
+import com.example.diplom.security.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;

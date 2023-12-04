@@ -7,10 +7,11 @@ import com.example.diplom.model.FileResponse;
 import com.example.diplom.model.NewFileName;
 import com.example.diplom.repository.FileRepositories;
 import com.example.diplom.repository.UserRepositories;
+import com.example.diplom.security.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,6 +41,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public ResponseEntity<String> uploadFile(MultipartFile file, String token) {
+        checkSuccessToken(token);
         Long idUser = getUserId(token);
         Path fileDirectory = init(idUser);
         FileEntity tableNameFiles = fileRepositories.findByFileName(file.getOriginalFilename());
@@ -64,6 +66,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public ResponseEntity<String> deleteFile(String fileName, String token) {
+        checkSuccessToken(token);
         Long userId = getUserId(token);
         FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         boolean isFileDelete;
@@ -89,7 +92,8 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
     }
 
     @Override
-    public ResponseEntity<Object> downloadFile(String fileName, String token) {
+    public ResponseEntity<Resource> downloadFile(String fileName, String token) {
+        checkSuccessToken(token);
         Long userId = getUserId(token);
         FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         if (isNull(tableNameFiles)) {
@@ -113,6 +117,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public ResponseEntity<String> editFileName(String fileName, NewFileName newFileName, String token) {
+        checkSuccessToken(token);
         Long userId = getUserId(token);
         FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         if (isNull(tableNameFiles)) {
@@ -139,6 +144,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
 
     @Override
     public ResponseEntity<List<FileResponse>> getAllFiles(Integer limit, String token) {
+        checkSuccessToken(token);
         Long userId = getUserId(token);
         List<FileEntity> fileListUser = fileRepositories.findByUserId(userId);
         log.info("List files search");
@@ -169,4 +175,10 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
         return userEntity.get().getId();
     }
 
+    public void checkSuccessToken(String authToken) {
+        boolean authSuccess = jwtUtil.validateJwtToken(authToken);
+        if (!authSuccess) {
+            new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
+    }
 }

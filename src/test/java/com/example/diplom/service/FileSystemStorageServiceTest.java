@@ -65,7 +65,7 @@ public class FileSystemStorageServiceTest {
 
     @Test
     public void uploadValidFileTest() throws Exception {
-        mockMvc.perform(multipart("/cloud/file")
+        mockMvc.perform(multipart("/file")
                         .file(getFileToUploadTest())
                         .header("auth-token", createTestToken()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -76,7 +76,7 @@ public class FileSystemStorageServiceTest {
 
     @Test
     public void uploadFileAlreadyExistsTest() throws Exception {
-        mockMvc.perform(multipart("/cloud/file")
+        mockMvc.perform(multipart("/file")
                         .file(getFileToUploadTest())
                         .header("auth-token", createTestToken()))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -85,7 +85,7 @@ public class FileSystemStorageServiceTest {
 
     @Test
     public void uploadFileEmptyTest() throws Exception {
-        mockMvc.perform(multipart("/cloud/file")
+        mockMvc.perform(multipart("/file")
                         .file("files", null)
                         .header("auth-token", createTestToken()))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -95,7 +95,7 @@ public class FileSystemStorageServiceTest {
 
     @Test
     public void deleteValidFileTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/cloud/file")
+        mockMvc.perform(MockMvcRequestBuilders.delete("/file")
                         .param("filename", "testFile.txt")
                         .header("auth-token", createTestToken()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -116,7 +116,7 @@ public class FileSystemStorageServiceTest {
 
     @Test
     public void uploadFileTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/cloud/file")
+        mockMvc.perform(MockMvcRequestBuilders.get("/file")
                         .param("filename", "testFile.txt")
                         .header("auth-token", createTestToken())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -126,7 +126,7 @@ public class FileSystemStorageServiceTest {
 
     @Test
     public void uploadFileNotFoundTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/cloud/file")
+        mockMvc.perform(MockMvcRequestBuilders.get("/file")
                         .param("filename", "test.xml")
                         .header("auth-token", createTestToken())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -137,7 +137,7 @@ public class FileSystemStorageServiceTest {
 
     @Test
     public void getListFileTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/cloud/list")
+        mockMvc.perform(MockMvcRequestBuilders.get("/list")
                         .param("limit", "10")
                         .header("auth-token", createTestToken()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
