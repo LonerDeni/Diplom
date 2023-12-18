@@ -13,13 +13,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseError> credentialsHandler(FileException e) {
-        //return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         return ResponseEntity.badRequest().body(new ResponseError(null,e.getMessage()));
     }
 
     @ExceptionHandler(AuthTokenException.class)
     public ResponseEntity<ResponseError> credentialsHandler(AuthTokenException e) {
-        //return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(new ResponseError(null,e.getMessage()));
@@ -27,7 +25,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CreateUserException.class)
     public ResponseEntity<ResponseError> credentialsHandler(CreateUserException e) {
-        //return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         return ResponseEntity.badRequest().body(new ResponseError(null,e.getMessage()));
     }
 }

@@ -63,7 +63,7 @@ public class LoginServiceImpl implements LoginService {
         String encodePas = encodePassword(userEntity.getPassword());
         userEntity.setPassword(encodePas);
         userRepositories.save(userEntity);
-        log.info("New User is create " + userEntity.getLogin());
+        log.info(String.format("New User is create %s",userEntity.getLogin()));
         return new UserCreateResponse("Create new user" + userEntity.getLogin());
     }
 

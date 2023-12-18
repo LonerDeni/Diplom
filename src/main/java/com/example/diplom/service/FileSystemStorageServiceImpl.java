@@ -46,20 +46,20 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
         Path fileDirectory = init(idUser);
         FileEntity tableNameFiles = fileRepositories.findByFileName(file.getOriginalFilename());
         if (file.isEmpty()) {
-            log.error("Error upload file: " + file.getOriginalFilename() + " file not found");
+            log.error(String.format("Error upload file: %s file not found" ,file.getOriginalFilename()));
             throw new FileException("File not found");
         }
         if (!isNull(tableNameFiles)) {
-            log.error("Error upload file: " + file.getOriginalFilename() + " file already exists");
+            log.error(String.format("Error upload file: %s file already exists", file.getOriginalFilename()));
             throw new FileException("File already exists");
         }
         try {
             fileRepositories.save(new FileEntity(file.getOriginalFilename(), idUser, fileDirectory.toString(), file.getSize()));
             Files.copy(file.getInputStream(), fileDirectory.resolve(file.getOriginalFilename()));
-            log.info("Successful upload file: " + file.getOriginalFilename());
+            log.info(String.format("Successful upload file: %s",file.getOriginalFilename()));
             return new ResponseEntity<>("Success upload", HttpStatus.OK);
         } catch (Exception e) {
-            log.error("Error upload file: " + file.getOriginalFilename());
+            log.error(String.format("Error upload file: %s", file.getOriginalFilename()));
             throw new FileException("File upload error");
         }
     }
@@ -97,20 +97,20 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
         Long userId = getUserId(token);
         FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         if (isNull(tableNameFiles)) {
-            log.error("Error download file: " + fileName + " file not found");
+            log.error(String.format("Error download file: %s file not found",fileName));
             throw new FileException(String.format("File with name: %s not found", fileName));
         }
         try {
             File file = new File(tableNameFiles.getPath() + "/" + tableNameFiles.getFileName());
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-            log.info("File download: " + fileName);
+            log.info(String.format("File download: %s",fileName));
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + tableNameFiles.getFileName() + "\"")
                     .contentLength(file.length())
                     .contentType(MediaType.parseMediaType(Files.probeContentType(Paths.get(tableNameFiles.getPath() + "/" + tableNameFiles.getFileName()))))
                     .body(resource);
         } catch (IOException e) {
-            log.error("Error download file: " + fileName);
+            log.error(String.format("Error download file: %s", fileName));
             throw new FileException("File download error");
         }
     }
@@ -121,12 +121,12 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
         Long userId = getUserId(token);
         FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
         if (isNull(tableNameFiles)) {
-            log.error("Error renamed file: " + fileName + " file not found");
+            log.error(String.format("Error renamed file: %s file not found", fileName));
             throw new FileException(String.format("File with name: %s not found", fileName));
         }
         FileEntity tableNewNameFiles = fileRepositories.findByFileName(newFileName.getName());
         if (!isNull(tableNewNameFiles)) {
-            log.error("Error renamed file: " + newFileName.getName() + " already exists");
+            log.error(String.format("Error renamed file: %s already exists", newFileName.getName()));
             throw new FileException(String.format("File with name: %s already exists", newFileName.getName()));
         }
         tableNameFiles.setFileName(newFileName.getName());
@@ -137,7 +137,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
             log.info(String.format("File %s renamed. New name: %s", fileName, newFileName));
             return new ResponseEntity<>(String.format("File renamed. New name: %s", newFileName.getName()), HttpStatus.OK);
         } catch (IOException e) {
-            log.error("Error renamed file: " + fileName);
+            log.error(String.format("Error renamed file: %s", fileName));
             throw new FileException("File renamed error");
         }
     }
