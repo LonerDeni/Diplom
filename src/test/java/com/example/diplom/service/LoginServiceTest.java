@@ -3,13 +3,10 @@ package com.example.diplom.service;
 import com.example.diplom.entity.UserEntity;
 import com.example.diplom.repository.UserRepositories;
 import org.junit.jupiter.api.*;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -21,7 +18,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SpringBootTest
 @AutoConfigureMockMvc
-//@RunWith(SpringRunner.class)
 public class LoginServiceTest {
     @Autowired
     private MockMvc mockMvc;
@@ -58,7 +54,7 @@ public class LoginServiceTest {
     }
     @Test
     public void authNotValidPassTest() throws Exception{
-        mockMvc.perform(multipart("/cloud/login")
+        mockMvc.perform(multipart("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"login\": \"testUnitData\", \"password\": \"qwerty\"}"))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -66,14 +62,14 @@ public class LoginServiceTest {
     }
     @Test
     public void logoutTest() throws Exception{
-        mockMvc.perform(multipart("/cloud/logout")
+        mockMvc.perform(multipart("/logout")
                 .header("auth-token", createTestToken()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("Success logout"));
     }
     @Test
     public void logoutNotValidTest() throws Exception{
-        mockMvc.perform(multipart("/cloud/logout")
+        mockMvc.perform(multipart("/logout")
                         .header("auth-token", "dfsdf"))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andExpect(MockMvcResultMatchers.content().json("{\"id\":null,\"message\":\"Invalid Jwt token\"}"));
@@ -81,7 +77,7 @@ public class LoginServiceTest {
 
     @Test
     public void addUserTest() throws Exception{
-        mockMvc.perform(multipart("/cloud/createUser")
+        mockMvc.perform(multipart("/createUser")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "    \"login\" : \"test777\",\n" +
