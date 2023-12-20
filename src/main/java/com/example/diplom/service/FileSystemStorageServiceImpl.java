@@ -4,6 +4,7 @@ import com.example.diplom.entity.FileEntity;
 import com.example.diplom.entity.UserEntity;
 import com.example.diplom.exception.FileException;
 import com.example.diplom.model.FileResponse;
+import com.example.diplom.model.FileUpload;
 import com.example.diplom.model.NewFileName;
 import com.example.diplom.repository.FileRepositories;
 import com.example.diplom.repository.UserRepositories;
@@ -11,8 +12,6 @@ import com.example.diplom.security.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
+import static org.springframework.http.ResponseEntity.ok;
 
 
 @Service
@@ -40,16 +40,16 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
     private final JWTUtil jwtUtil;
 
     @Override
-    public ResponseEntity<String> uploadFile(MultipartFile file, String token) {
+    public String uploadFile(MultipartFile file, String token) {
         checkSuccessToken(token);
         Long idUser = getUserId(token);
         Path fileDirectory = init(idUser);
-        FileEntity tableNameFiles = fileRepositories.findByFileName(file.getOriginalFilename());
+        FileEntity fileData = fileRepositories.findByFileName(file.getOriginalFilename());
         if (file.isEmpty()) {
             log.error(String.format("Error upload file: %s file not found" ,file.getOriginalFilename()));
             throw new FileException("File not found");
         }
-        if (!isNull(tableNameFiles)) {
+        if (!isNull(fileData)) {
             log.error(String.format("Error upload file: %s file already exists", file.getOriginalFilename()));
             throw new FileException("File already exists");
         }
@@ -57,7 +57,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
             fileRepositories.save(new FileEntity(file.getOriginalFilename(), idUser, fileDirectory.toString(), file.getSize()));
             Files.copy(file.getInputStream(), fileDirectory.resolve(file.getOriginalFilename()));
             log.info(String.format("Successful upload file: %s",file.getOriginalFilename()));
-            return new ResponseEntity<>("Success upload", HttpStatus.OK);
+            return "Success upload";
         } catch (Exception e) {
             log.error(String.format("Error upload file: %s", file.getOriginalFilename()));
             throw new FileException("File upload error");
@@ -65,17 +65,17 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
     }
 
     @Override
-    public ResponseEntity<String> deleteFile(String fileName, String token) {
+    public String deleteFile(String fileName, String token) {
         checkSuccessToken(token);
         Long userId = getUserId(token);
-        FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
+        FileEntity fileData = fileRepositories.findByUserIdAndFileName(userId, fileName);
         boolean isFileDelete;
-        if (isNull(tableNameFiles)) {
+        if (isNull(fileData)) {
             log.error("Error delete file: " + fileName + " file not found");
             throw new FileException(String.format("File with name: %s not found", fileName));
         }
-        fileRepositories.delete(tableNameFiles);
-        Path pathFileDelete = Paths.get(tableNameFiles.getPath());
+        fileRepositories.delete(fileData);
+        Path pathFileDelete = Paths.get(fileData.getPath());
         try {
             Path file = pathFileDelete.resolve(fileName);
             isFileDelete = Files.deleteIfExists(file);
@@ -85,30 +85,31 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
             throw new FileException("Error delete file");
         }
         if (isFileDelete) {
-            return new ResponseEntity<>("Success delete", HttpStatus.OK);
+            return "Success delete";
         }
         log.info("File not delete");
-        return new ResponseEntity<>(String.format("File with name: %s NOT delete", fileName), HttpStatus.INTERNAL_SERVER_ERROR);
+        return String.format("File with name: %s NOT delete", fileName);
     }
 
     @Override
-    public ResponseEntity<Resource> downloadFile(String fileName, String token) {
+    public FileUpload downloadFile(String fileName, String token) {
         checkSuccessToken(token);
         Long userId = getUserId(token);
-        FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
-        if (isNull(tableNameFiles)) {
-            log.error(String.format("Error download file: %s file not found",fileName));
+        FileEntity fileData = fileRepositories.findByUserIdAndFileName(userId, fileName);
+        if (isNull(fileData)) {
+            log.info(String.format("Error download file: %s file not found",fileName));
             throw new FileException(String.format("File with name: %s not found", fileName));
         }
         try {
-            File file = new File(tableNameFiles.getPath() + "/" + tableNameFiles.getFileName());
+            File file = new File(fileData.getPath() + "/" + fileData.getFileName());
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
             log.info(String.format("File download: %s",fileName));
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + tableNameFiles.getFileName() + "\"")
-                    .contentLength(file.length())
-                    .contentType(MediaType.parseMediaType(Files.probeContentType(Paths.get(tableNameFiles.getPath() + "/" + tableNameFiles.getFileName()))))
-                    .body(resource);
+            FileUpload fileUpload = new FileUpload();
+            fileUpload.setHeader("attachment; filename=\"" + fileData.getFileName() + "\"");
+            fileUpload.setLength(file.length());
+            fileUpload.setType(MediaType.parseMediaType(Files.probeContentType(Paths.get(fileData.getPath() + "/" + fileData.getFileName()))));
+            fileUpload.setFile(resource);
+            return fileUpload;
         } catch (IOException e) {
             log.error(String.format("Error download file: %s", fileName));
             throw new FileException("File download error");
@@ -116,11 +117,11 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
     }
 
     @Override
-    public ResponseEntity<String> editFileName(String fileName, NewFileName newFileName, String token) {
+    public String editFileName(String fileName, NewFileName newFileName, String token) {
         checkSuccessToken(token);
         Long userId = getUserId(token);
-        FileEntity tableNameFiles = fileRepositories.findByUserIdAndFileName(userId, fileName);
-        if (isNull(tableNameFiles)) {
+        FileEntity fileData = fileRepositories.findByUserIdAndFileName(userId, fileName);
+        if (isNull(fileData)) {
             log.error(String.format("Error renamed file: %s file not found", fileName));
             throw new FileException(String.format("File with name: %s not found", fileName));
         }
@@ -129,13 +130,13 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
             log.error(String.format("Error renamed file: %s already exists", newFileName.getName()));
             throw new FileException(String.format("File with name: %s already exists", newFileName.getName()));
         }
-        tableNameFiles.setFileName(newFileName.getName());
-        fileRepositories.save(tableNameFiles);
+        fileData.setFileName(newFileName.getName());
+        fileRepositories.save(fileData);
         try {
-            Path pathFileDelete = Paths.get(tableNameFiles.getPath()).resolve(fileName);
+            Path pathFileDelete = Paths.get(fileData.getPath()).resolve(fileName);
             Files.move(pathFileDelete, pathFileDelete.resolveSibling(newFileName.getName()));
             log.info(String.format("File %s renamed. New name: %s", fileName, newFileName));
-            return new ResponseEntity<>(String.format("File renamed. New name: %s", newFileName.getName()), HttpStatus.OK);
+            return String.format("File renamed. New name: %s", newFileName.getName());
         } catch (IOException e) {
             log.error(String.format("Error renamed file: %s", fileName));
             throw new FileException("File renamed error");
@@ -143,12 +144,12 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
     }
 
     @Override
-    public ResponseEntity<List<FileResponse>> getAllFiles(Integer limit, String token) {
+    public List<FileResponse> getAllFiles(Integer limit, String token) {
         checkSuccessToken(token);
         Long userId = getUserId(token);
         List<FileEntity> fileListUser = fileRepositories.findByUserId(userId);
         log.info("List files search");
-        return new ResponseEntity<>(fileListUser.stream().map(x -> new FileResponse(x.getFileName(), x.getSize())).limit(limit).collect(Collectors.toList()), HttpStatus.OK);
+        return fileListUser.stream().map(x -> new FileResponse(x.getFileName(), x.getSize())).limit(limit).collect(Collectors.toList());
     }
 
     @Override

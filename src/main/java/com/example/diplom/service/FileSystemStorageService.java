@@ -1,6 +1,7 @@
 package com.example.diplom.service;
 
 import com.example.diplom.model.FileResponse;
+import com.example.diplom.model.FileUpload;
 import com.example.diplom.model.NewFileName;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +15,13 @@ import java.util.List;
 public interface FileSystemStorageService {
     Path init(Long token);
 
-    ResponseEntity<String> uploadFile(MultipartFile file, String token);
+    String uploadFile(MultipartFile file, String token);
 
-    ResponseEntity<Resource> downloadFile(String fileName, String token);
+    FileUpload downloadFile(String fileName, String token);
 
-    ResponseEntity<String> editFileName(String fileName, NewFileName newFileName, String token);
+    String editFileName(String fileName, NewFileName newFileName, String token);
 
-    ResponseEntity<String> deleteFile(String fileName, String token);
+    String deleteFile(String fileName, String token);
 
-    ResponseEntity<List<FileResponse>> getAllFiles(Integer limit, String token);
+    List<FileResponse> getAllFiles(Integer limit, String token);
 }
