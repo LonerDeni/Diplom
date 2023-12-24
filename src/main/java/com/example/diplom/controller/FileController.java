@@ -1,16 +1,19 @@
 package com.example.diplom.controller;
 
 import com.example.diplom.model.FileResponse;
-import com.example.diplom.model.FileUpload;
+import com.example.diplom.model.FileUploadDTO;
 import com.example.diplom.model.NewFileName;
 import com.example.diplom.service.FileSystemStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -34,12 +37,12 @@ public class FileController {
 
     @GetMapping("/file")
     public ResponseEntity<Resource> downloadFile(@RequestHeader("auth-token") String authToken, @RequestParam("filename") String fileName) {
-        FileUpload fileUpload = fileSystemStorageService.downloadFile(fileName, authToken);
+        FileUploadDTO fileUploadDTO = fileSystemStorageService.downloadFile(fileName, authToken);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, fileUpload.getHeader())
-                .contentLength(fileUpload.getLength())
-                .contentType(fileUpload.getType())
-                .body(fileUpload.getFile());
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileUploadDTO.getFileName() + "\"")
+                .contentLength(fileUploadDTO.getLength())
+                .contentType(fileUploadDTO.getMediaType())
+                .body(fileUploadDTO.getFile());
     }
 
     @PutMapping("/file")

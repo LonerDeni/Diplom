@@ -4,7 +4,7 @@ import com.example.diplom.entity.FileEntity;
 import com.example.diplom.entity.UserEntity;
 import com.example.diplom.exception.FileException;
 import com.example.diplom.model.FileResponse;
-import com.example.diplom.model.FileUpload;
+import com.example.diplom.model.FileUploadDTO;
 import com.example.diplom.model.NewFileName;
 import com.example.diplom.repository.FileRepositories;
 import com.example.diplom.repository.UserRepositories;
@@ -92,7 +92,7 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
     }
 
     @Override
-    public FileUpload downloadFile(String fileName, String token) {
+    public FileUploadDTO downloadFile(String fileName, String token) {
         checkSuccessToken(token);
         Long userId = getUserId(token);
         FileEntity fileData = fileRepositories.findByUserIdAndFileName(userId, fileName);
@@ -104,10 +104,10 @@ public class FileSystemStorageServiceImpl implements FileSystemStorageService {
             File file = new File(fileData.getPath() + "/" + fileData.getFileName());
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
             log.info(String.format("File download: %s",fileName));
-            FileUpload fileUpload = new FileUpload();
-            fileUpload.setHeader("attachment; filename=\"" + fileData.getFileName() + "\"");
+            FileUploadDTO fileUpload = new FileUploadDTO();
+            fileUpload.setFileName(fileData.getFileName());
             fileUpload.setLength(file.length());
-            fileUpload.setType(MediaType.parseMediaType(Files.probeContentType(Paths.get(fileData.getPath() + "/" + fileData.getFileName()))));
+            fileUpload.setMediaType(MediaType.parseMediaType(Files.probeContentType(Paths.get(fileData.getPath() + "/" + fileData.getFileName()))));
             fileUpload.setFile(resource);
             return fileUpload;
         } catch (IOException e) {
